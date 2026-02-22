@@ -78,8 +78,8 @@
                 messageB_translateY_in: [30, 0, { start: 0.6, end: 0.65 }],
                 messageC_translateY_in: [30, 0, { start: 0.9, end: 0.93 }],
 
-                pinA_scaleY_in: [0.5, 1, { start: 0.3, end: 0.4 }],
-                pinB_scaleY_in: [0.5, 1, { start: 0.5, end: 0.6 }],
+                pinA_scaleY_in: [0.5, 1, { start: 0.6, end: 0.65 }],
+                pinB_scaleY_in: [0.5, 1, { start: 0.9, end: 0.93 }],
 
                 messageA_opacity_out: [1, 0, { start: 0.4, end: 0.45 }],
                 messageB_opacity_out: [1, 0, { start: 0.68, end: 0.73 }],
@@ -96,7 +96,19 @@
             heightNum: 5,
             scrollHeight: 0,
             objs: {
-                container: document.querySelector('#scroll-section-4')
+                container: document.querySelector('#scroll-section-4'),
+                canvas: document.querySelector('#scroll-section-4 .image-blend-canvas'),
+                context: document.querySelector('#scroll-section-4 .image-blend-canvas').getContext('2d'),
+                imagesPath: [
+                    './images/blend-image-1.jpg',
+                    './images/blend-image-2.jpg',
+                ],
+                images: []
+            },
+            values: {
+                rect1X: [0, 0, {start: 0, end: 0}],
+                rect2X: [0, 0, {start: 0, end: 0}],
+                rectStartY: 0
             }
         }
     ]
@@ -119,6 +131,13 @@
 
             sceneInfo[2].objs.videoImages.push(imgElem)
         }
+
+        sceneInfo[3].objs.imagesPath.forEach(path => {
+            // imgElem = document.createElement('img');
+            const imgElem = new Image()
+            imgElem.src = path
+            sceneInfo[3].objs.images.push(imgElem)
+        })
     }
 
     setCanvasImages()
@@ -190,6 +209,7 @@
         const objs = sceneInfo[currentScene].objs
         const values = sceneInfo[currentScene].values
         const currentYOffset = yOffset - prevScrollHeight;
+        const scrollHeight = sceneInfo[currentScene].scrollHeight
         const scrollRatio = currentYOffset / sceneInfo[currentScene].scrollHeight
 
         switch (currentScene) {
@@ -287,6 +307,34 @@
                 break;
 
             case 3:
+                const widthRatio = window.innerWidth / objs.canvas.width
+                const heightRatio = window.innerHeight / objs.canvas.height
+
+                // 캔버스가 창 크기보다 높이가 적은 경우 넓이 기준으로 그게 아닌 경우 높이 기준으로
+                const canvasScaleRatio = widthRatio >= heightRatio ? widthRatio : heightRatio
+                objs.canvas.style.transform = `scale(${canvasScaleRatio})`
+                objs.context.drawImage(objs.images[0], 0, 0)
+
+                const recalculateInnerWidth = document.body.offsetWidth / canvasScaleRatio
+                if (!values.rectStartY) {
+                    values.rectStartY = objs.canvas.offsetTop
+                    values.rect1X[2].end = values.rectStartY / scrollHeight
+                    values.rect2X[2].end = values.rectStartY / scrollHeight
+                }
+
+                // 화이트박스 넓이
+                const whiteRectWidth = recalculateInnerWidth * 0.15
+                values.rect1X[0] = (objs.canvas.width - recalculateInnerWidth) / 2
+                values.rect1X[1] = values.rect1X[0] - whiteRectWidth
+                values.rect2X[0] = values.rect1X[0] + recalculateInnerWidth - whiteRectWidth
+                values.rect2X[1] = values.rect2X[0] + whiteRectWidth
+
+                const calcRect1X = calcValues(values.rect1X, currentYOffset)
+                objs.context.fillRect(calcRect1X, 0, whiteRectWidth, objs.canvas.height)
+
+                const calcRect2X = calcValues(values.rect2X, currentYOffset)
+                objs.context.fillRect(calcRect2X, 0, whiteRectWidth, objs.canvas.height)
+
                 break;
         }
     }
