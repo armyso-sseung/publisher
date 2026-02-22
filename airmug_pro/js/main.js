@@ -35,6 +35,7 @@
                 messageB_opacity_out: [1, 0, { start: 0.45, end: 0.5 }],
                 messageC_opacity_out: [1, 0, { start: 0.65, end: 0.7 }],
                 messageD_opacity_out: [1, 0, { start: 0.85, end: 0.9 }],
+                canvas_opacity_out: [1, 0, { start: 0.9, end: 1 }],
 
                 messageA_translateY_out: [0, -20, { start: 0.25, end: 0.3 }],
                 messageB_translateY_out: [0, -20, { start: 0.45, end: 0.5 }],
@@ -61,26 +62,33 @@
                 messageC: document.querySelector('#scroll-section-3 .desc-message.c'),
                 pinA: document.querySelector('#scroll-section-3 .desc-message.b .pin'),
                 pinB: document.querySelector('#scroll-section-3 .desc-message.c .pin'),
+                canvas: document.querySelector('#video-canvas-1'),
+                context: document.querySelector('#video-canvas-1').getContext('2d'),
+                videoImages: [],
             },
             values: {
-                messageA_opacity_in: [0, 1, { start: 0.1, end: 0.2 }],
-                messageB_opacity_in: [0, 1, { start: 0.3, end: 0.4 }],
-                messageC_opacity_in: [0, 1, { start: 0.5, end: 0.6 }],
+                videoImageCount: 960,
+                imageSequence: [0, 959],
+                messageA_opacity_in: [0, 1, { start: 0.25, end: 0.3 }],
+                messageB_opacity_in: [0, 1, { start: 0.6, end: 0.65 }],
+                messageC_opacity_in: [0, 1, { start: 0.9, end: 0.93 }],
+                canvas_opacity_in: [0, 1, { start: 0.0, end: 0.1 }],
 
-                messageA_translateY_in: [20, 0, { start: 0.1, end: 0.2 }],
-                messageB_translateY_in: [20, 0, { start: 0.3, end: 0.4 }],
-                messageC_translateY_in: [20, 0, { start: 0.5, end: 0.6 }],
+                messageA_translateY_in: [20, 0, { start: 0.25, end: 0.3 }],
+                messageB_translateY_in: [30, 0, { start: 0.6, end: 0.65 }],
+                messageC_translateY_in: [30, 0, { start: 0.9, end: 0.93 }],
 
                 pinA_scaleY_in: [0.5, 1, { start: 0.3, end: 0.4 }],
                 pinB_scaleY_in: [0.5, 1, { start: 0.5, end: 0.6 }],
 
-                messageA_opacity_out: [1, 0, { start: 0.25, end: 0.3 }],
-                messageB_opacity_out: [1, 0, { start: 0.45, end: 0.5 }],
-                messageC_opacity_out: [1, 0, { start: 0.65, end: 0.7 }],
+                messageA_opacity_out: [1, 0, { start: 0.4, end: 0.45 }],
+                messageB_opacity_out: [1, 0, { start: 0.68, end: 0.73 }],
+                messageC_opacity_out: [1, 0, { start: 0.95, end: 1.0 }],
+                canvas_opacity_out: [1, 0, { start: 0.95, end: 1.0 }],
 
-                messageA_translateY_out: [0, -20, { start: 0.25, end: 0.3 }],
-                messageB_translateY_out: [0, -20, { start: 0.45, end: 0.5 }],
-                messageC_translateY_out: [0, -20, { start: 0.65, end: 0.7 }],
+                messageA_translateY_out: [0, -20, { start: 0.4, end: 0.45 }],
+                messageB_translateY_out: [0, -20, { start: 0.68, end: 0.73 }],
+                messageC_translateY_out: [0, -20, { start: 0.95, end: 1.0 }],
             }
         },
         {
@@ -102,6 +110,14 @@
             imgElem.src = `./video/001/IMG_${6726 + i}.JPG`
 
             sceneInfo[0].objs.videoImages.push(imgElem)
+        }
+
+        for (let i = 0; i < sceneInfo[2].values.videoImageCount; i++) {
+            // imgElem = document.createElement('img');
+            const imgElem = new Image()
+            imgElem.src = `./video/002/IMG_${7027 + i}.JPG`
+
+            sceneInfo[2].objs.videoImages.push(imgElem)
         }
     }
 
@@ -137,6 +153,7 @@
         // 이미지 대비 높이 비율
         const heightRatio = displayHeight / 1080
         sceneInfo[0].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`
+        sceneInfo[2].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`
     }
 
     const calcValues = (values, currentYOffset) => {
@@ -178,8 +195,8 @@
         switch (currentScene) {
             case 0:
                 // 이미지 번호
-                const sequence = Math.round(calcValues(values.imageSequence, currentYOffset))
-                objs.context.drawImage(objs.videoImages[sequence], 0, 0)
+                const sequence1 = Math.round(calcValues(values.imageSequence, currentYOffset))
+                objs.context.drawImage(objs.videoImages[sequence1], 0, 0)
 
                 // A Opacity
                 scrollRatio < 0.22
@@ -224,21 +241,28 @@
                     ? objs.messageD.style.transform = `translate3d(0, ${calcValues(values.messageD_translateY_in, currentYOffset)}%, 0)`
                     : objs.messageD.style.transform = `translate3d(0, ${calcValues(values.messageD_translateY_out, currentYOffset)}%, 0)`
 
+                // Canvas Opacity
+                objs.canvas.style.opacity = calcValues(values.canvas_opacity_out, currentYOffset)
+
                 break;
 
             case 1:
                 break;
 
             case 2:
-                scrollRatio < 0.22
+                // 이미지 번호
+                const sequence2 = Math.round(calcValues(values.imageSequence, currentYOffset))
+                objs.context.drawImage(objs.videoImages[sequence2], 0, 0)
+
+                scrollRatio < 0.35
                     ? objs.messageA.style.opacity = calcValues(values.messageA_opacity_in, currentYOffset)
                     : objs.messageA.style.opacity = calcValues(values.messageA_opacity_out, currentYOffset)
 
-                scrollRatio < 0.22
+                scrollRatio < 0.35
                     ? objs.messageA.style.transform = `translate3d(0, ${calcValues(values.messageA_translateY_in, currentYOffset)}%, 0)`
                     : objs.messageA.style.transform = `translate3d(0, ${calcValues(values.messageA_translateY_out, currentYOffset)}%, 0)`
 
-                if (scrollRatio < 0.42) {
+                if (scrollRatio < 0.67) {
                     objs.messageB.style.opacity = calcValues(values.messageB_opacity_in, currentYOffset)
                     objs.messageB.style.transform = `translate3d(0, ${calcValues(values.messageB_translateY_in, currentYOffset)}%, 0)`
                     objs.pinA.style.transform = `scaleY(${calcValues(values.pinA_scaleY_in, currentYOffset)})`
@@ -247,7 +271,7 @@
                     objs.messageB.style.transform = `translate3d(0, ${calcValues(values.messageB_translateY_out, currentYOffset)}%, 0)`
                 }
 
-                if (scrollRatio < 0.62) {
+                if (scrollRatio < 0.94) {
                     objs.messageC.style.opacity = calcValues(values.messageC_opacity_in, currentYOffset)
                     objs.messageC.style.transform = `translate3d(0, ${calcValues(values.messageC_translateY_in, currentYOffset)}%, 0)`
                     objs.pinB.style.transform = `scaleY(${calcValues(values.pinB_scaleY_in, currentYOffset)})`
@@ -255,6 +279,10 @@
                     objs.messageC.style.opacity = calcValues(values.messageC_opacity_out, currentYOffset)
                     objs.messageC.style.transform = `translate3d(0, ${calcValues(values.messageC_translateY_out, currentYOffset)}%, 0)`
                 }
+
+                scrollRatio < 0.5
+                    ? objs.canvas.style.opacity = calcValues(values.canvas_opacity_in, currentYOffset)
+                    : objs.canvas.style.opacity = calcValues(values.canvas_opacity_out, currentYOffset)
 
                 break;
 

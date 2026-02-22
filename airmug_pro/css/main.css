@@ -75,6 +75,7 @@ a {
     position: relative;
     font-size: 4rem;
     text-align: center;
+    top: -10vh;
     z-index: 5;
 }
 
@@ -128,6 +129,7 @@ a {
 .desc-message {
     width: 50%;
     font-weight: bold;
+    opacity: 0;
 }
 
 .pin {
